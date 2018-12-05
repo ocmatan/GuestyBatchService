@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,7 +20,6 @@ public class RequestHandler {
         restTemplate = new RestTemplate();
     }
 
-
     public ResponseEntity handleRequest(SingleRequest singleRequest){
         System.out.println("handling single request");
         ResponseEntity<JsonNode> response = null;
@@ -27,7 +27,7 @@ public class RequestHandler {
             HttpEntity<JsonNode> request = new HttpEntity<>(singleRequest.body);
             response = restTemplate.exchange(singleRequest.url, singleRequest.httpMethod, request, JsonNode.class);
         }catch (Exception e){
-
+            //TODO - generate error object
         }
         return response;
     }

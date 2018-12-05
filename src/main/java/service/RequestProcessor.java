@@ -3,9 +3,11 @@ package service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriTemplate;
 import web.ActionRequestParams;
+import web.EditingBatchResponse;
 import web.SingleActionBatchRequest;
 
 import java.util.HashMap;
@@ -18,17 +20,25 @@ public class RequestProcessor {
     @Autowired
     RequestHandler requestHandler;
 
-    public void process(List<SingleActionBatchRequest> requests){
-        System.out.println("processing");
+    public EditingBatchResponse process(List<SingleActionBatchRequest> requests) throws InterruptedException{
+        System.out.println("processing batch request");
+        EditingBatchResponse editingBatchResponse = new EditingBatchResponse();
         for(SingleActionBatchRequest singleActionBatchRequest : requests){
             for(ActionRequestParams actionRequestParams : singleActionBatchRequest.objects){
                 SingleRequest singleRequest = new SingleRequest();
                 singleRequest.url = buildUri(singleActionBatchRequest.url, actionRequestParams.query);
                 singleRequest.httpMethod = singleActionBatchRequest.verb;
                 singleRequest.body =  actionRequestParams.data;
-                requestHandler.handleRequest(singleRequest);
+                ResponseEntity<JsonNode> response = requestHandler.handleRequest(singleRequest);
+                if(response.getStatusCode().value() == 429){//too many requests, make another attempt
+                    Thread.sleep(1000);
+                    response = requestHandler.handleRequest(singleRequest);
+                }
+                editingBatchResponse.addResponse(response, singleRequest);
+                //TODO - handle errors + retry
             }
         }
+        return editingBatchResponse;
     }
 
 

@@ -16,9 +16,9 @@ public class BatchEditingController {
     RequestProcessor requestProcessor;
 
     @RequestMapping(value = "/batch", method = RequestMethod.POST)
-    public String batch(@RequestBody List<SingleActionBatchRequest> requests) {
-        requestProcessor.process(requests);
-        return "Greetings from Spring Boot!";
+    public EditingBatchResponse executeBatch(@RequestBody List<SingleActionBatchRequest> requests) throws Exception{
+        System.out.println("Got a new batch execution request");
+        return requestProcessor.process(requests);
     }
 
 }
