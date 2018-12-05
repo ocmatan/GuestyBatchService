@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Matan test title</title>
+</head>
+<body>
+
+    <div>
+        test content here
+        <textarea id="myTextarea">
+
+        </textarea>
+        <button onclick="post()"></button>
+    </div>
+    <script>
+        function post(){
+
+            fetch("http://localhost:8080/batch", {
+                method : "POST",
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(document.getElementById("myTextarea").value)
+                });
+        }
+    </script>
+
+</body>
+</html>
